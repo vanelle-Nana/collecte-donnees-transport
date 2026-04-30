@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Transport Insight Software</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .welcome-bg {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), 
+                              url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2069');
+            background-size: cover; background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
+
+    <div class="w-72 bg-slate-900 text-white flex flex-col shadow-2xl z-10">
+        <div class="p-8 text-center border-b border-slate-800">
+            <span class="text-2xl font-black tracking-widest text-indigo-400 italic">LOGI-TRANS</span>
+        </div>
+        
+        <nav class="flex-1 mt-6 px-4 space-y-2">
+            <a href="/" class="flex items-center py-3 px-4 rounded-xl transition {{ 'bg-indigo-600 shadow-lg' if page == 'accueil' else 'hover:bg-slate-800' }}">
+                <i class="fas fa-desktop mr-3"></i> Accueil
+            </a>
+            <a href="/stats" class="flex items-center py-3 px-4 rounded-xl transition {{ 'bg-indigo-600 shadow-lg' if page == 'stats' else 'hover:bg-slate-800' }}">
+                <i class="fas fa-calculator mr-3"></i> Statistiques
+            </a>
+            <a href="/diagramme" class="flex items-center py-3 px-4 rounded-xl transition {{ 'bg-indigo-600 shadow-lg' if page == 'diagramme' else 'hover:bg-slate-800' }}">
+                <i class="fas fa-chart-pie mr-3"></i> Diagrammes
+            </a>
+            <a href="/gestion" class="flex items-center py-3 px-4 rounded-xl transition {{ 'bg-indigo-600 shadow-lg' if page == 'gestion' else 'hover:bg-slate-800' }}">
+                <i class="fas fa-database mr-3"></i> Gestion & Admin
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <a href="/toggle_admin" class="block text-center text-[10px] text-slate-500 mb-2 hover:text-white transition uppercase tracking-tighter">
+                {{ 'Passer en Mode Utilisateur' if is_admin else 'Passer en Mode Admin' }}
+            </a>
+            {% if is_admin %}
+                <a href="/collecter" class="flex items-center justify-center py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg hover:bg-emerald-500 transition">
+                    <i class="fas fa-sync-alt mr-2"></i> Lancer la Collecte
+                </a>
+            {% else %}
+                <div class="py-3 px-4 bg-slate-800 text-slate-500 font-bold rounded-xl text-center opacity-50">
+                    <i class="fas fa-lock mr-2"></i> Accès Restreint
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        
+        {% if page == 'accueil' %}
+        <div class="h-full welcome-bg flex items-center justify-center text-center p-12">
+            <div class="max-w-3xl">
+                <h1 class="text-6xl font-black text-white mb-6 leading-tight">Système de Gestion des <span class="text-indigo-400">Transports</span></h1>
+                <p class="text-xl text-slate-300 leading-relaxed mb-10">Analyse statistique avancée et régression linéaire pour la gestion des tarifs de transport.</p>
+                <a href="/stats" class="bg-indigo-600 text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-indigo-500 transition">Démarrer l'Analyse</a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if page in ['stats', 'diagramme', 'gestion'] %}
+        <div class="p-10 max-w-6xl mx-auto w-full">
+            
+            {% if page == 'stats' %}
+                <h2 class="text-3xl font-black mb-8 text-slate-800">Indicateurs Statistiques</h2>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-400 font-bold text-xs uppercase">Moyenne</p>
+                        <p class="text-4xl font-black text-indigo-600 mt-2">{{ stats.moyenne }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-400 font-bold text-xs uppercase">Mode (Valeur dominante)</p>
+                        <p class="text-4xl font-black text-indigo-600 mt-2">{{ stats.mode }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-400 font-bold text-xs uppercase">Variance (σ²)</p>
+                        <p class="text-4xl font-black text-indigo-600 mt-2">{{ stats.variance }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-400 font-bold text-xs uppercase">Écart-Type (σ)</p>
+                        <p class="text-4xl font-black text-indigo-600 mt-2">{{ stats.ecart_type }}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <p class="text-slate-400 font-bold text-xs uppercase">Effectif (N)</p>
+                        <p class="text-4xl font-black text-indigo-600 mt-2">{{ stats.effectif }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if page == 'diagramme' %}
+                <h2 class="text-3xl font-black mb-8 text-slate-800">Visualisations & Histogrammes</h2>
+                <div class="bg-white p-6 rounded-3xl shadow-xl flex justify-center">
+                    {% if graph_html %}
+                        <img src="data:image/png;base64,{{ graph_html }}" class="max-w-full rounded-xl border border-slate-100 shadow-inner">
+                    {% else %}
+                        <div class="py-20 text-center">
+                            <i class="fas fa-chart-area text-slate-200 text-6xl mb-4"></i>
+                            <p class="text-red-500 font-bold">Aucune donnée positive détectée pour générer les graphiques.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if page == 'gestion' %}
+                <h2 class="text-3xl font-black mb-8 text-slate-800">Gestion de la Base de Données</h2>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
+                    <h3 class="font-bold mb-4 text-slate-700 flex items-center"><i class="fas fa-plus-circle mr-2 text-indigo-500"></i> Saisie de Données</h3>
+                    <form action="/ajouter" method="POST" class="flex gap-4">
+                        <input type="text" name="compagnie" placeholder="Nom de la compagnie" class="flex-1 bg-slate-50 p-3 rounded-lg border-none focus:ring-2 focus:ring-indigo-500" required>
+                        <input type="number" name="prix" placeholder="Prix (FCFA)" min="1" class="w-40 bg-slate-50 p-3 rounded-lg border-none focus:ring-2 focus:ring-indigo-500" required>
+                        <button type="submit" class="bg-slate-900 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-600 transition shadow-lg">Ajouter</button>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 uppercase text-[10px] font-black tracking-widest">
+                            <tr><th class="p-6">Compagnie de Transport</th><th class="p-6">Tarif</th><th class="p-6 text-center">Actions</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for trajet in trajets %}
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="p-6 font-bold text-slate-700">{{ trajet['compagnie'] }}</td>
+                                <td class="p-6 text-indigo-600 font-black">{{ trajet['prix'] }} FCFA</td>
+                                <td class="p-6 text-center">
+                                    {% if is_admin %}
+                                        <div class="flex justify-center gap-6">
+                                            <a href="#" onclick="let p = prompt('Nouveau prix ?', '{{ trajet['prix'] }}'); if(p) { let f = document.createElement('form'); f.method='POST'; f.action='/modifier/{{ trajet['id'] }}'; let i = document.createElement('input'); i.name='prix'; i.value=p; f.appendChild(i); document.body.appendChild(f); f.submit(); } return false;" class="text-blue-500 hover:text-blue-700 transition">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="/supprimer/{{ trajet['id'] }}" onclick="return confirm('Voulez-vous supprimer cette donnée ?')" class="text-red-500 hover:text-red-700 transition">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-slate-300 text-xs italic bg-slate-100 px-3 py-1 rounded-full"><i class="fas fa-lock mr-1"></i> Lecture seule</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
